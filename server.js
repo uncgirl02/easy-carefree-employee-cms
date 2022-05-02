@@ -14,13 +14,13 @@ const connection = mysql.createConnection(
 console.log('Connected to the employeecms database.');
 
 
-function whatToDo() {
+async function whatToDo() {
   return inquirer.prompt([
     {
       type: 'list',
       name: 'todo',
       message: 'What would you like to do?',
-      choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role'],
+      choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit program'],
     }
   ])
     .then(answer => {
@@ -38,16 +38,19 @@ function whatToDo() {
         addEmployee()
       } if (answer.todo === 'Update an employee role') {
         updateEmployeeRole()
+      } if (answer.todo === 'Exit program') {
+        exitProgram()
       }
     })
 };
 
-function viewallDepartments() {
+async function viewallDepartments() {
   connection.query('SELECT * FROM department', function (error, results) {
     if (error) {
       console.log(err);
     };
     console.table(results);
+    await whatToDo();
   });
 }
 
@@ -70,7 +73,7 @@ function viewAllEmployees() {
 }
     
 
-function addDepartment() {
+function addDepartment(department) {
   connection.query('INSERT INTO departments SET ?', department, function (error, results) {
     if (error) {
       console.log(err);
@@ -79,7 +82,7 @@ function addDepartment() {
   });
 }
 
-function addRole() {
+function addRole(role) {
   connection.query('INSERT INTO roles SET ?', role, function (error, results) {
     if (error) {
       console.log(err);
@@ -88,7 +91,7 @@ function addRole() {
   });
 }
 
-function addEmployee() {
+function addEmployee(employee) {
   connection.query('INSERT INTO employees SET ?', employee, function (error, results) {
     if (error) {
       console.log(err);
@@ -97,13 +100,17 @@ function addEmployee() {
   });
 }
 
-function updateEmployeeRole() {
+function updateEmployeeRole(employee, id) {
   connection.query('UPDATE employees SET ? where ?', [employee, {id: id}], function (error, results) {
     if (error) {
       console.log(err);
     };
     console.table(results);
   });
+}
+
+function exitProgram() {
+  console.log("Thank you for using Employee CMS.  Have a great day!")
 }
 
 
