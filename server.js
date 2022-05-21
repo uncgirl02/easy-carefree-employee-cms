@@ -1,8 +1,10 @@
 const inquirer = require("inquirer")
 const mysql = require('mysql2');
 const cTable = require('console.table');
+const Connection = require("mysql2/typings/mysql/lib/Connection");
 require('dotenv').config();
 
+// Establish Connection
 
 const connection = mysql.createConnection(
   {
@@ -16,7 +18,7 @@ const connection = mysql.createConnection(
   console.log('Connected to the employeecms database.')
   );
 
-
+// Function to Initiate Program
 
 function whatToDo() {
   return inquirer.prompt([
@@ -27,6 +29,7 @@ function whatToDo() {
       choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit program'],
     }
   ])
+  // Depending on choice selected, run different functions
     .then(answer => {
       if (answer.todo === 'View all departments') {
         return viewallDepartments()
@@ -48,6 +51,7 @@ function whatToDo() {
     })
 };
 
+// Function to view all departments
 async function viewallDepartments() {
   connection.query(`SELECT * FROM department`, function (error, results) {
     if (error) {
@@ -58,6 +62,7 @@ async function viewallDepartments() {
   });
 }
 
+// Function to view all Roles
 async function viewAllRoles() {
   connection.query(`SELECT * FROM role`, function (error, results) {
     if (error) {
@@ -66,7 +71,8 @@ async function viewAllRoles() {
     console.table(results);
   });
 }
- 
+
+// Function to view all employees
 async function viewAllEmployees() {
   connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
     FROM employee
@@ -80,7 +86,8 @@ async function viewAllEmployees() {
     console.table(results);
   });
 }
-    
+ 
+// Function to add a department
 async function addDepartment() {
  await inquirer.prompt([
     {
@@ -102,6 +109,7 @@ async function addDepartment() {
   .then (answer => whatToDo())
 }
 
+// Set up  a department array to use as the choices in the addRole function
 var deptArray = [];
 function selectDept() {
   connection.query("SELECT * FROM department", function(err, res) {
@@ -113,6 +121,7 @@ function selectDept() {
   return deptArray;
 }
 
+// Function to add a role
 function addRole() {
   return inquirer.prompt([
     {
@@ -148,6 +157,7 @@ function addRole() {
   .then(answers => whatToDo())
 }
 
+// Set up a role array to use as choices in the addEmployee function
 var roleArray = [];
 function selectRole() {
   connection.query("SELECT * FROM role", function(err, res) {
@@ -159,6 +169,7 @@ function selectRole() {
   return roleArray;
 }
 
+// Set up a manager array to use as choices in the addEmployee function
 var managerArray = [];
 function selectManager() {
   connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
@@ -171,6 +182,7 @@ function selectManager() {
   return managerArray;
 }
 
+// Function to add an Employee
 function addEmployee() {
   return inquirer.prompt([
     {
@@ -218,6 +230,7 @@ function addEmployee() {
     .then(answers => whatToDo())
   }
 
+// Function to update the employee role
 function updateEmployeeRole(employee, id) {
   connection.query(`UPDATE employee SET ? where ?`, [employee, {id: id}], function (error, results) {
     if (error) {
@@ -227,10 +240,12 @@ function updateEmployeeRole(employee, id) {
   });
 }
 
+//Function to exit the program
 function exitProgram() {
   console.log("Thank you for using Employee CMS.  Have a great day!")
 }
 
+// Establish connection to the database and ititiate the application
 connection.connect(err => {
   if (err) throw err;
   whatToDo()});
