@@ -18,7 +18,7 @@ const connection = mysql.createConnection(
   console.log('Connected to the employeecms database.')
   );
 
-// Function to Initiate Program
+// Function to Initiate Application
 
 function whatToDo() {
   return inquirer.prompt([
@@ -205,7 +205,7 @@ function addEmployee() {
       type: 'list',
       name: 'manager',
       message: "Who is this employee's manager?",
-      choices: selectManager()
+      choices: selectManager(),
     },
   ])
   .then(answers => {
@@ -213,11 +213,11 @@ function addEmployee() {
     let newLastName = answers.lastname
     let newRoleId = selectRole().indexOf(answers.role) + 1
     
-    if (answers.manager === "null") {
-    let newManagerId = null
-    } else {
+    // if (answers.manager === "null") {
+    // let newManagerId = null
+    // } else {
     let newManagerId = selectManager().indexOf(answers.manager) + 1
-    }
+    
 
     connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${newFirstName}", "${newLastName}", "${newRoleId}", "${newManagerId}")`, function (error, results) {
       if (error) {
@@ -230,14 +230,45 @@ function addEmployee() {
     .then(answers => whatToDo())
   }
 
+  var employeeArray = [];
+  function selectEmployee() {
+    connection.query("SELECT first_name, last_name FROM employee", function(err, res) {
+      if (err) throw err
+      for (var i = 0; i < res.length; i++) {
+        employeeArray.push((res[i].first_name).concat(" " + res[i].last_name)); 
+      }
+    })
+    return employeeArray;
+  }
+
 // Function to update the employee role
-function updateEmployeeRole(employee, id) {
-  connection.query(`UPDATE employee SET ? where ?`, [employee, {id: id}], function (error, results) {
-    if (error) {
-      console.log(err);
-    };
-    console.table(answers);
-  });
+function updateEmployeeRole() {
+  return inquirer.prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Which employee do you want to set with the role?",
+        choices: selectEmployee(),
+      },
+      {
+        type: "list",
+        name: "role",
+        message: "Which role do you want to update?",
+        choices: selectRole()
+      },
+    ])
+    .then(answers => {
+      let employeeId = selectEmployee().indexOf(answers.employee) + 1
+      let roleId = selectRole().indexOf(answers.role) + 1
+      connection.query(`UPDATE employee SET role_id = ? WHERE id = ?`, [roleId, employeeId],
+        function (err, res) {
+          if (err) throw err;
+
+          console.table(answers);
+          console.log(res.affectedRows + "Updated successfully!");
+        })
+    })
+    .then(answers => whatToDo())
 }
 
 //Function to exit the program
