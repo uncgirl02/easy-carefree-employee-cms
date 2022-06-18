@@ -24,7 +24,8 @@ Run `npm install` to install the required packages. From the MySQL shell, run `s
 
 Run "node server.js" from the command prompt and choose for the options prompted in the console.
 
-![CMS VIDEO WALKTHROUGH]
+
+https://user-images.githubusercontent.com/96963668/174451068-1a18a127-6373-4df3-a898-d8a0d336dde5.mp4
 
 
 ## License
