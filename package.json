@@ -3,10 +3,12 @@
     "console.table": "^0.10.0",
     "dotenv": "^16.0.1",
     "inquirer": "^8.2.4",
-    "mysql2": "^2.3.3"
+    "mysql2": "^2.3.3",
+    "seed": "^0.4.4"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed": "node db/seeds.sql"
   },
   "name": "easy-carefree-employee-cms",
   "description": "[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)",
