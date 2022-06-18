@@ -91,7 +91,7 @@ function viewAllEmployees() {
 
 // Function to add a department
 async function addDepartment() {
-  await inquirer.prompt([
+  return inquirer.prompt([
     {
       type: 'input',
       name: 'department',
@@ -109,8 +109,9 @@ async function addDepartment() {
         console.log("Added " + newDepartment + " to the database")
       })
     })
-    whatToDo()
-}
+    .then(answers => whatToDo())
+  }
+
 
 // Set up  a department array to use as the choices in the addRole function
 var deptArray = [];
@@ -161,13 +162,12 @@ function addRole() {
 }
 
 // Set up a role array to use as choices in the addEmployee function
-var roleArray = [];
 function selectRole() {
-  connection.query("SELECT * FROM role LEFT JOIN department ON (department.id = role.department_id)", function (err, res) {
-    if (err) throw err,
-    console.table(res)
+  var roleArray = [];
+  connection.query("SELECT role.id, role.title, department.name FROM role INNER JOIN department ON (role.department_id = department.id)", function (err, res) {
+    if (err) throw err;
     for (var i = 0; i < res.length; i++) 
-      roleArray.push({value:res[i].id, name:(res[i].department_id).concat("   " +res[i].title, res[i].department_id)});
+    roleArray.push({value:res[i].id, name:(res[i].title.concat(" of the " + res[i].name + " department"))});
     })
   
   return roleArray;
@@ -237,21 +237,21 @@ function addEmployee() {
 
 //Set up array for employees to use in the updateEmployeeRole function
 
-async function selectEmployee() {
-  var employeeArray = [];
-  connection.query("SELECT first_name, last_name FROM employee", (err, res) => {
-    if (error) {
-      console.log(err);
-    };
-    console.table(results);
-    for (var i = 0; i < res.length; i++) {
-      employeeArray.push((res[i].first_name).concat(" " + res[i].last_name));
-    };
-    console.log("data: ", employeeArray);
-    return employeeArray;
-  })
+// async function selectEmployee() {
+//   var employeeArray = [];
+//   connection.query("SELECT first_name, last_name FROM employee", (err, res) => {
+//     if (error) {
+//       console.log(err);
+//     };
+//     console.table(results);
+//     for (var i = 0; i < res.length; i++) {
+//       employeeArray.push((res[i].first_name).concat(" " + res[i].last_name));
+//     };
+//     console.log("data: ", employeeArray);
+//     return employeeArray;
+//   })
 
-}
+// }
 
 // Function to update the employee role
 function updateEmployeeRole() {
@@ -266,7 +266,7 @@ function updateEmployeeRole() {
 
     var roleArray = [];
 
-    connection.query("SELECT role.title, department.name FROM role INNER JOIN department ON (role.department_id = department.id)", function (err, res) {
+    connection.query("SELECT role.id, role.title, department.name FROM role INNER JOIN department ON (role.department_id = department.id)", function (err, res) {
       if (err) throw err
       for (var i = 0; i < res.length; i++) {
         roleArray.push({value:res[i].id, name:(res[i].title.concat(" of the " + res[i].name + " department"))});
@@ -305,8 +305,6 @@ function updateEmployeeRole() {
     })
   })
 }
-
-
 
 //Function to exit the program
 function exitProgram() {
